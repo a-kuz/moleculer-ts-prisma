@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+model Clients {
+  id                BigInt                          @id @default(autoincrement())
+  name              String                          @db.String(255)
+  rootId            String                          @db.String(255)
+  stores            ClientsStores[]
+  legalEntities     LegalEntities[]
+  createdAt         DateTime                        @default(now())
+  updatedAt         DateTime                        @updatedAt
+}
+
+model LegalEntities {
+  id                BigInt                          @id @default(autoincrement())
+  name              String
+  client            Clients                         @relation(fields:[clientId], references: [id])
+  clientId          BigInt 
+  createdAt         DateTime                        @default(now())
+  updatedAt         DateTime                        @updatedAt
+
+}
+
+model ClientsStores {
+  id                BigInt                          @id @default(autoincrement())
+  name              String?
+  client            Clients                         @relation(fields:[clientId], references: [id])
+  clientId          BigInt
+  options           ClientsStoresOptions[]
+  logs              Logs[]
+  createdAt         DateTime                        @default(now())
+  updatedAt         DateTime                        @updatedAt
+  
+}
+model Logs {
+  id                BigInt                          @id @default(autoincrement())
+  name              String
+  store             ClientsStores                   @relation(fields:[storeId], references: [id])
+  storeId           BigInt 
+  request           String
+  response          String
+  createdAt         DateTime                        @default(now())
+
+}
+
+model ClientsStoresOptions {
+  id                BigInt                          @id @default(autoincrement())
+  name              String?
+  store             ClientsStores                   @relation(fields:[storeId], references: [id])
+  storeId           BigInt
+  createdAt         DateTime                        @default(now())
+  updatedAt         DateTime                        @updatedAt
+  
+}
+
+model Cryptocurrencies {
+  id                BigInt                          @id @default(autoincrement())
+  name              String                          @db.String(255)
+  options           CryptocurrenciesOptions[]
+  createdAt         DateTime                        @default(now())
+  updatedAt         DateTime                        @updatedAt
+}
+
+model CryptocurrenciesOptions {
+  id                BigInt                          @id @default(autoincrement())
+  cryptocurrency    Cryptocurrencies                @relation(fields:[cryptocurrencyid], references: [id])
+  cryptocurrencyid  BigInt
+  name              String                          @db.String(255)
+  value             String                          @db.String(255)
+  createdAt         DateTime                        @default(now())
+  updatedAt         DateTime                        @updatedAt
+}
