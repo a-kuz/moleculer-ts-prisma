@@ -2,41 +2,18 @@ import { BrokerOptions, Errors, MetricRegistry, ServiceBroker } from "moleculer"
 import { PrismaClient } from "@prisma/client";
 
 
-/**
- * Moleculer ServiceBroker configuration file
- *
- * More info about options:
- *     https://moleculer.services/docs/0.14/configuration.html
- *
- *
- * Overwriting options in production:
- * ================================
- *    You can overwrite any option with environment variables.
- *    For example to overwrite the "logLevel" value, use `LOGLEVEL=warn` env var.
- *    To overwrite a nested parameter, e.g. retryPolicy.retries, use `RETRYPOLICY_RETRIES=10` env var.
- *
- *    To overwrite broker’s deeply nested default options, which are not presented in "moleculer.config.js",
- *    use the `MOL_` prefix and double underscore `__` for nested properties in .env file.
- *    For example, to set the cacher prefix to `MYCACHE`, you should declare an env var as `MOL_CACHER__OPTIONS__PREFIX=mycache`.
- *  It will set this:
- *  {
- *    cacher: {
- *      options: {
- *        prefix: "mycache"
- *      }
- *    }
- *  }
- */
-const brokerConfig: BrokerOptions = {
-	// Namespace of nodes to segment your nodes on the same network.
-	namespace: "dach",
-	// Unique node identifier. Must be unique in a namespace.
-	nodeID: null,
-	// Custom metadata store. Store here what you want. Accessing: `this.broker.metadata`
-	metadata: {},
 
-	// Enable/disable logging or use custom logger. More info: https://moleculer.services/docs/0.14/logging.html
-	// Available logger types: "Console", "File", "Pino", "Winston", "Bunyan", "debug", "Log4js", "Datadog"
+const brokerConfig: BrokerOptions = {
+
+	namespace: "dach",
+
+	nodeID: [process.env.NAME, hostname().toLowerCase(), process.env.TAG || process.pid]
+		.filter(v => !!v)
+		.join("-"),
+	metadata: {
+		services: process.env.SERVICES
+	},
+
 	logger: {
 		type: "Console",
 		options: {
@@ -154,7 +131,7 @@ const brokerConfig: BrokerOptions = {
 
 	// Enable/disable built-in metrics function. More info: https://moleculer.services/docs/0.14/metrics.html
 	metrics: {
-		enabled: true,
+		enabled: false,
 		// Available built-in reporters: "Console", "CSV", "Event", "Prometheus", "Datadog", "StatsD"
 		reporter: {
 			type: "CSV",
